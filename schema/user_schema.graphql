@@ -1,0 +1,20 @@
+enum UserStatus {
+  Active
+  Inactive
+}
+
+type User {
+  id: String!
+  email: String!
+  status: UserStatus!
+  createdAt: String!
+  updatedAt: String!
+}
+
+extend type Query {
+  users: [User!]!
+}
+
+extend type Mutation {
+  disableUser(userId: String!): User!
+}

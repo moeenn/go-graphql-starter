@@ -1,0 +1,34 @@
+version: '3'
+
+vars:
+  MAIN: ./cmd/api/main.go
+  ENV_FILE: .env
+
+tasks:
+  lint:
+    cmds:
+      - golangci-lint run ./...
+
+  test:
+    cmds:
+      - go test ./...
+
+  # usage: FILTER=^TestSomething$ task test:filter
+  "test:filter":
+    cmds:
+      - godotenv -f {{.ENV_FILE}} go test -run $FILTER -v ./...
+
+  generate:
+    cmds:
+      - go run github.com/99designs/gqlgen@v0.17.73 generate
+      
+  run:
+    cmds:
+      - godotenv -f {{.ENV_FILE}} go run {{.MAIN}}
+
+  build:
+    cmds:
+      - task: lint
+      - task: test
+      - task: generate
+      - go build -o ./bin/graphql {{.MAIN}}
