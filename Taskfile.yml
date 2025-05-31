@@ -18,10 +18,14 @@ tasks:
     cmds:
       - godotenv -f {{.ENV_FILE}} go test -run $FILTER -v ./...
 
-  generate:
+  "gen:graphql":
     cmds:
       - go run github.com/99designs/gqlgen@v0.17.73 generate
-      
+
+  "gen:models":
+    cmds:
+      - sqlc generate
+    
   run:
     cmds:
       - godotenv -f {{.ENV_FILE}} go run {{.MAIN}}
@@ -30,5 +34,6 @@ tasks:
     cmds:
       - task: lint
       - task: test
-      - task: generate
-      - go build -o ./bin/graphql {{.MAIN}}
+      - task: "gen:model"
+      - task: "gen:graphql"
+      - go build -o ./bin/api {{.MAIN}}

@@ -3,6 +3,16 @@ type UserToken {
   expiry: Int!
 }
 
+input CreateAccountInput {
+  email: String!
+  password: String!
+  confirmPassword: String!
+}
+
+type CreateAccountResponse {
+  message: String!
+}
+
 type LoginResponse {
   user: User!
   token: UserToken!
@@ -13,6 +23,8 @@ input LoginInput {
   password: String!
 }
 
+
 type Mutation {
+  createAccount(input: CreateAccountInput!): CreateAccountResponse!
   login(input: LoginInput!): LoginResponse!
 }
