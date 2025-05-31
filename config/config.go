@@ -41,8 +41,19 @@ func (c ServerConfig) Address() string {
 	return c.Host + ":" + c.Port
 }
 
+type DatabaseConfig struct {
+	FilePath string
+}
+
+func newDatabaseConfig() *DatabaseConfig {
+	return &DatabaseConfig{
+		FilePath: "./site.db",
+	}
+}
+
 type Config struct {
-	Server *ServerConfig
+	Server   *ServerConfig
+	Database *DatabaseConfig
 }
 
 func NewConfig() (*Config, error) {
@@ -51,8 +62,11 @@ func NewConfig() (*Config, error) {
 		return nil, fmt.Errorf("server config: %w", err)
 	}
 
+	databaseConfig := newDatabaseConfig()
+
 	config := &Config{
-		Server: serverConfig,
+		Server:   serverConfig,
+		Database: databaseConfig,
 	}
 
 	return config, nil

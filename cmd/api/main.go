@@ -15,6 +15,10 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/vektah/gqlparser/v2/ast"
 	"graphql/graph/resolvers"
+
+	"database/sql"
+	dbmodels "graphql/db/models"
+	_ "modernc.org/sqlite"
 )
 
 func run() error {
@@ -23,10 +27,19 @@ func run() error {
 		return fmt.Errorf("config error: %w", err)
 	}
 
+	dbConn, err := sql.Open("sqlite", config.Database.FilePath)
+	if err != nil {
+		return err
+	}
+	defer dbConn.Close()
+
+	db := dbmodels.New(dbConn)
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+
 	srv := handler.New(graph.NewExecutableSchema(graph.Config{
 		Resolvers: &resolvers.Resolver{
 			Logger: logger,
+			DB:     db,
 		},
 	}))
 
