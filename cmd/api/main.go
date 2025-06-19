@@ -3,6 +3,15 @@ package main
 import (
 	"context"
 	"fmt"
+	"graphql/config"
+	dbmodels "graphql/db/models"
+	"graphql/graph"
+	"graphql/graph/resolvers"
+	"graphql/middleware"
+	"log/slog"
+	"net/http"
+	"os"
+
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/handler/extension"
 	"github.com/99designs/gqlgen/graphql/handler/lru"
@@ -10,13 +19,6 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/jackc/pgx/v5"
 	"github.com/vektah/gqlparser/v2/ast"
-	"graphql/config"
-	dbmodels "graphql/db/models"
-	"graphql/graph"
-	"graphql/graph/resolvers"
-	"log/slog"
-	"net/http"
-	"os"
 )
 
 func run(ctx context.Context) error {
@@ -53,8 +55,21 @@ func run(ctx context.Context) error {
 		Cache: lru.New[string](100),
 	})
 
+	globalMiddleware, err := middleware.NewGraphqlGlobalMiddleware(
+		&middleware.GlobalMiddlewareArgs{
+			Logger:                logger,
+			Next:                  srv,
+			JwtSecret:             config.Auth.JwtSecret,
+			WhiteListedOperations: config.Auth.WhiteListedOperations,
+		},
+	)
+
+	if err != nil {
+		return fmt.Errorf("failed to initialize global middleware: %w", err)
+	}
+
 	http.Handle(config.Server.GraphiqlUrl, playground.Handler("GraphQL playground", config.Server.GraphqlUrl))
-	http.Handle(config.Server.GraphqlUrl, srv)
+	http.Handle(config.Server.GraphqlUrl, globalMiddleware)
 
 	address := config.Server.Address()
 	logger.Info("starting server", "address", address)

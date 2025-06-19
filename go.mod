@@ -4,7 +4,9 @@ go 1.24.3
 
 require (
 	github.com/99designs/gqlgen v0.17.73
+	github.com/golang-jwt/jwt/v5 v5.2.2
 	github.com/google/uuid v1.6.0
+	github.com/graphql-go/graphql v0.8.1
 	github.com/jackc/pgx/v5 v5.7.5
 	github.com/vektah/gqlparser/v2 v2.5.26
 )
