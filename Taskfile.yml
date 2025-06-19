@@ -25,6 +25,11 @@ tasks:
   "gen:models":
     cmds:
       - sqlc generate
+
+  # generate secret token
+  "gen:token":
+    cmds:
+      - go run github.com/moeenn/go-token@latest
     
   run:
     cmds:

@@ -9,6 +9,16 @@ import (
 	"strconv"
 )
 
+type CreateAccountInput struct {
+	Email           string `json:"email"`
+	Password        string `json:"password"`
+	ConfirmPassword string `json:"confirmPassword"`
+}
+
+type CreateAccountResponse struct {
+	Message string `json:"message"`
+}
+
 type LoginInput struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`

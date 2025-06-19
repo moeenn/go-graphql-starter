@@ -1,41 +1,41 @@
 package main
 
 import (
+	"context"
 	"fmt"
-	"graphql/config"
-	"graphql/graph"
-	"log/slog"
-	"net/http"
-	"os"
-
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/handler/extension"
 	"github.com/99designs/gqlgen/graphql/handler/lru"
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/99designs/gqlgen/graphql/playground"
+	"github.com/jackc/pgx/v5"
 	"github.com/vektah/gqlparser/v2/ast"
-	"graphql/graph/resolvers"
-
-	"database/sql"
+	"graphql/config"
 	dbmodels "graphql/db/models"
-	_ "modernc.org/sqlite"
+	"graphql/graph"
+	"graphql/graph/resolvers"
+	"log/slog"
+	"net/http"
+	"os"
 )
 
-func run() error {
-	config, err := config.NewConfig()
+func run(ctx context.Context) error {
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+	config, err := config.NewConfig(logger)
 	if err != nil {
 		return fmt.Errorf("config error: %w", err)
 	}
 
-	dbConn, err := sql.Open("sqlite", config.Database.FilePath)
+	dbConn, err := pgx.Connect(ctx, config.Database.URI)
 	if err != nil {
 		return err
 	}
-	defer dbConn.Close()
+	defer dbConn.Close(ctx)
+	if err := dbConn.Ping(ctx); err != nil {
+		return err
+	}
 
 	db := dbmodels.New(dbConn)
-	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
-
 	srv := handler.New(graph.NewExecutableSchema(graph.Config{
 		Resolvers: &resolvers.Resolver{
 			Logger: logger,
@@ -53,8 +53,8 @@ func run() error {
 		Cache: lru.New[string](100),
 	})
 
-	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
-	http.Handle("/query", srv)
+	http.Handle(config.Server.GraphiqlUrl, playground.Handler("GraphQL playground", config.Server.GraphqlUrl))
+	http.Handle(config.Server.GraphqlUrl, srv)
 
 	address := config.Server.Address()
 	logger.Info("starting server", "address", address)
@@ -62,7 +62,8 @@ func run() error {
 }
 
 func main() {
-	if err := run(); err != nil {
+	ctx := context.Background()
+	if err := run(ctx); err != nil {
 		fmt.Fprintf(os.Stderr, "error: %s\n", err.Error())
 		os.Exit(1)
 	}

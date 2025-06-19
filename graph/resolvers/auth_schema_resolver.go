@@ -6,12 +6,18 @@ package resolvers
 
 import (
 	"context"
+	"fmt"
 	"graphql/graph"
 	"graphql/graph/gmodel"
 	"time"
 
 	"github.com/google/uuid"
 )
+
+// CreateAccount is the resolver for the createAccount field.
+func (r *mutationResolver) CreateAccount(ctx context.Context, input gmodel.CreateAccountInput) (*gmodel.CreateAccountResponse, error) {
+	panic(fmt.Errorf("not implemented: CreateAccount - createAccount"))
+}
 
 // Login is the resolver for the login field.
 func (r *mutationResolver) Login(ctx context.Context, input gmodel.LoginInput) (*gmodel.LoginResponse, error) {

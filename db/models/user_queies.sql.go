@@ -7,26 +7,27 @@ package models
 
 import (
 	"context"
-	"database/sql"
-	"time"
+
+	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createUser = `-- name: CreateUser :exec
-insert into user (id, email, password, role, created_at, updated_at)
-values (?, ?, ?, ?, ?, ?)
+insert into users (id, email, password, role, created_at, updated_at)
+values ($1, $2, $3, $4, $5, $6)
 `
 
 type CreateUserParams struct {
-	ID        string
+	ID        uuid.UUID
 	Email     string
 	Password  string
-	Role      string
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	Role      NullUserRole
+	CreatedAt pgtype.Timestamp
+	UpdatedAt pgtype.Timestamp
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) error {
-	_, err := q.db.ExecContext(ctx, createUser,
+	_, err := q.db.Exec(ctx, createUser,
 		arg.ID,
 		arg.Email,
 		arg.Password,
@@ -38,14 +39,14 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) error {
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one
-select id, email, password, role, created_at, updated_at, deleted_at from user
-where email = ?
+select id, email, password, role, created_at, updated_at, deleted_at from users
+where email = $1
 and deleted_at is null
 limit 1
 `
 
 func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error) {
-	row := q.db.QueryRowContext(ctx, getUserByEmail, email)
+	row := q.db.QueryRow(ctx, getUserByEmail, email)
 	var i User
 	err := row.Scan(
 		&i.ID,
@@ -60,18 +61,18 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 }
 
 const getUsers = `-- name: GetUsers :many
-select id, email, password, role, created_at, updated_at, deleted_at from user
-limit ?
-offset ?
+select id, email, password, role, created_at, updated_at, deleted_at from users
+limit $1
+offset $2
 `
 
 type GetUsersParams struct {
-	Limit  int64
-	Offset int64
+	Limit  int32
+	Offset int32
 }
 
 func (q *Queries) GetUsers(ctx context.Context, arg GetUsersParams) ([]User, error) {
-	rows, err := q.db.QueryContext(ctx, getUsers, arg.Limit, arg.Offset)
+	rows, err := q.db.Query(ctx, getUsers, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -92,9 +93,6 @@ func (q *Queries) GetUsers(ctx context.Context, arg GetUsersParams) ([]User, err
 		}
 		items = append(items, i)
 	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
@@ -102,17 +100,17 @@ func (q *Queries) GetUsers(ctx context.Context, arg GetUsersParams) ([]User, err
 }
 
 const setUserDeletedStatus = `-- name: SetUserDeletedStatus :exec
-update user
-set deleted_at = ?
-where id = ?
+update users
+set deleted_at = $2
+where id = $1
 `
 
 type SetUserDeletedStatusParams struct {
-	DeletedAt sql.NullTime
-	ID        string
+	ID        uuid.UUID
+	DeletedAt pgtype.Timestamp
 }
 
 func (q *Queries) SetUserDeletedStatus(ctx context.Context, arg SetUserDeletedStatusParams) error {
-	_, err := q.db.ExecContext(ctx, setUserDeletedStatus, arg.DeletedAt, arg.ID)
+	_, err := q.db.Exec(ctx, setUserDeletedStatus, arg.ID, arg.DeletedAt)
 	return err
 }
