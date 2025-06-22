@@ -81,7 +81,7 @@ type DatabaseConfig struct {
 }
 
 func newDatabaseConfig() (*DatabaseConfig, error) {
-	uri, err := readEnv("DATABASE_URI")
+	uri, err := readEnv("GOOSE_DBSTRING")
 	if err != nil {
 		return nil, err
 	}

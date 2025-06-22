@@ -3,11 +3,11 @@
 package graph
 
 import (
+	"api/graph/gmodel"
 	"bytes"
 	"context"
 	"errors"
 	"fmt"
-	"graphql/graph/gmodel"
 	"strconv"
 	"sync"
 	"sync/atomic"
@@ -256,7 +256,7 @@ func (ec *executionContext) field_Mutation_createAccount_argsInput(
 ) (gmodel.CreateAccountInput, error) {
 	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 	if tmp, ok := rawArgs["input"]; ok {
-		return ec.unmarshalNCreateAccountInput2graphqlᚋgraphᚋgmodelᚐCreateAccountInput(ctx, tmp)
+		return ec.unmarshalNCreateAccountInput2apiᚋgraphᚋgmodelᚐCreateAccountInput(ctx, tmp)
 	}
 
 	var zeroVal gmodel.CreateAccountInput
@@ -302,7 +302,7 @@ func (ec *executionContext) field_Mutation_login_argsInput(
 ) (gmodel.LoginInput, error) {
 	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 	if tmp, ok := rawArgs["input"]; ok {
-		return ec.unmarshalNLoginInput2graphqlᚋgraphᚋgmodelᚐLoginInput(ctx, tmp)
+		return ec.unmarshalNLoginInput2apiᚋgraphᚋgmodelᚐLoginInput(ctx, tmp)
 	}
 
 	var zeroVal gmodel.LoginInput
@@ -504,7 +504,7 @@ func (ec *executionContext) _LoginResponse_user(ctx context.Context, field graph
 	}
 	res := resTmp.(*gmodel.User)
 	fc.Result = res
-	return ec.marshalNUser2ᚖgraphqlᚋgraphᚋgmodelᚐUser(ctx, field.Selections, res)
+	return ec.marshalNUser2ᚖapiᚋgraphᚋgmodelᚐUser(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_LoginResponse_user(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -560,7 +560,7 @@ func (ec *executionContext) _LoginResponse_token(ctx context.Context, field grap
 	}
 	res := resTmp.(*gmodel.UserToken)
 	fc.Result = res
-	return ec.marshalNUserToken2ᚖgraphqlᚋgraphᚋgmodelᚐUserToken(ctx, field.Selections, res)
+	return ec.marshalNUserToken2ᚖapiᚋgraphᚋgmodelᚐUserToken(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_LoginResponse_token(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -610,7 +610,7 @@ func (ec *executionContext) _Mutation_createAccount(ctx context.Context, field g
 	}
 	res := resTmp.(*gmodel.CreateAccountResponse)
 	fc.Result = res
-	return ec.marshalNCreateAccountResponse2ᚖgraphqlᚋgraphᚋgmodelᚐCreateAccountResponse(ctx, field.Selections, res)
+	return ec.marshalNCreateAccountResponse2ᚖapiᚋgraphᚋgmodelᚐCreateAccountResponse(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_createAccount(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -669,7 +669,7 @@ func (ec *executionContext) _Mutation_login(ctx context.Context, field graphql.C
 	}
 	res := resTmp.(*gmodel.LoginResponse)
 	fc.Result = res
-	return ec.marshalNLoginResponse2ᚖgraphqlᚋgraphᚋgmodelᚐLoginResponse(ctx, field.Selections, res)
+	return ec.marshalNLoginResponse2ᚖapiᚋgraphᚋgmodelᚐLoginResponse(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_login(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -730,7 +730,7 @@ func (ec *executionContext) _Mutation_disableUser(ctx context.Context, field gra
 	}
 	res := resTmp.(*gmodel.User)
 	fc.Result = res
-	return ec.marshalNUser2ᚖgraphqlᚋgraphᚋgmodelᚐUser(ctx, field.Selections, res)
+	return ec.marshalNUser2ᚖapiᚋgraphᚋgmodelᚐUser(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_disableUser(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -797,7 +797,7 @@ func (ec *executionContext) _Query_users(ctx context.Context, field graphql.Coll
 	}
 	res := resTmp.([]*gmodel.User)
 	fc.Result = res
-	return ec.marshalNUser2ᚕᚖgraphqlᚋgraphᚋgmodelᚐUserᚄ(ctx, field.Selections, res)
+	return ec.marshalNUser2ᚕᚖapiᚋgraphᚋgmodelᚐUserᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_users(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1072,7 +1072,7 @@ func (ec *executionContext) _User_status(ctx context.Context, field graphql.Coll
 	}
 	res := resTmp.(gmodel.UserStatus)
 	fc.Result = res
-	return ec.marshalNUserStatus2graphqlᚋgraphᚋgmodelᚐUserStatus(ctx, field.Selections, res)
+	return ec.marshalNUserStatus2apiᚋgraphᚋgmodelᚐUserStatus(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_User_status(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -3970,16 +3970,16 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
-func (ec *executionContext) unmarshalNCreateAccountInput2graphqlᚋgraphᚋgmodelᚐCreateAccountInput(ctx context.Context, v any) (gmodel.CreateAccountInput, error) {
+func (ec *executionContext) unmarshalNCreateAccountInput2apiᚋgraphᚋgmodelᚐCreateAccountInput(ctx context.Context, v any) (gmodel.CreateAccountInput, error) {
 	res, err := ec.unmarshalInputCreateAccountInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNCreateAccountResponse2graphqlᚋgraphᚋgmodelᚐCreateAccountResponse(ctx context.Context, sel ast.SelectionSet, v gmodel.CreateAccountResponse) graphql.Marshaler {
+func (ec *executionContext) marshalNCreateAccountResponse2apiᚋgraphᚋgmodelᚐCreateAccountResponse(ctx context.Context, sel ast.SelectionSet, v gmodel.CreateAccountResponse) graphql.Marshaler {
 	return ec._CreateAccountResponse(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNCreateAccountResponse2ᚖgraphqlᚋgraphᚋgmodelᚐCreateAccountResponse(ctx context.Context, sel ast.SelectionSet, v *gmodel.CreateAccountResponse) graphql.Marshaler {
+func (ec *executionContext) marshalNCreateAccountResponse2ᚖapiᚋgraphᚋgmodelᚐCreateAccountResponse(ctx context.Context, sel ast.SelectionSet, v *gmodel.CreateAccountResponse) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -4005,16 +4005,16 @@ func (ec *executionContext) marshalNInt2int32(ctx context.Context, sel ast.Selec
 	return res
 }
 
-func (ec *executionContext) unmarshalNLoginInput2graphqlᚋgraphᚋgmodelᚐLoginInput(ctx context.Context, v any) (gmodel.LoginInput, error) {
+func (ec *executionContext) unmarshalNLoginInput2apiᚋgraphᚋgmodelᚐLoginInput(ctx context.Context, v any) (gmodel.LoginInput, error) {
 	res, err := ec.unmarshalInputLoginInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNLoginResponse2graphqlᚋgraphᚋgmodelᚐLoginResponse(ctx context.Context, sel ast.SelectionSet, v gmodel.LoginResponse) graphql.Marshaler {
+func (ec *executionContext) marshalNLoginResponse2apiᚋgraphᚋgmodelᚐLoginResponse(ctx context.Context, sel ast.SelectionSet, v gmodel.LoginResponse) graphql.Marshaler {
 	return ec._LoginResponse(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNLoginResponse2ᚖgraphqlᚋgraphᚋgmodelᚐLoginResponse(ctx context.Context, sel ast.SelectionSet, v *gmodel.LoginResponse) graphql.Marshaler {
+func (ec *executionContext) marshalNLoginResponse2ᚖapiᚋgraphᚋgmodelᚐLoginResponse(ctx context.Context, sel ast.SelectionSet, v *gmodel.LoginResponse) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -4040,11 +4040,11 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 	return res
 }
 
-func (ec *executionContext) marshalNUser2graphqlᚋgraphᚋgmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v gmodel.User) graphql.Marshaler {
+func (ec *executionContext) marshalNUser2apiᚋgraphᚋgmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v gmodel.User) graphql.Marshaler {
 	return ec._User(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNUser2ᚕᚖgraphqlᚋgraphᚋgmodelᚐUserᚄ(ctx context.Context, sel ast.SelectionSet, v []*gmodel.User) graphql.Marshaler {
+func (ec *executionContext) marshalNUser2ᚕᚖapiᚋgraphᚋgmodelᚐUserᚄ(ctx context.Context, sel ast.SelectionSet, v []*gmodel.User) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -4068,7 +4068,7 @@ func (ec *executionContext) marshalNUser2ᚕᚖgraphqlᚋgraphᚋgmodelᚐUser�
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNUser2ᚖgraphqlᚋgraphᚋgmodelᚐUser(ctx, sel, v[i])
+			ret[i] = ec.marshalNUser2ᚖapiᚋgraphᚋgmodelᚐUser(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -4088,7 +4088,7 @@ func (ec *executionContext) marshalNUser2ᚕᚖgraphqlᚋgraphᚋgmodelᚐUser�
 	return ret
 }
 
-func (ec *executionContext) marshalNUser2ᚖgraphqlᚋgraphᚋgmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v *gmodel.User) graphql.Marshaler {
+func (ec *executionContext) marshalNUser2ᚖapiᚋgraphᚋgmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v *gmodel.User) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -4098,17 +4098,17 @@ func (ec *executionContext) marshalNUser2ᚖgraphqlᚋgraphᚋgmodelᚐUser(ctx 
 	return ec._User(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNUserStatus2graphqlᚋgraphᚋgmodelᚐUserStatus(ctx context.Context, v any) (gmodel.UserStatus, error) {
+func (ec *executionContext) unmarshalNUserStatus2apiᚋgraphᚋgmodelᚐUserStatus(ctx context.Context, v any) (gmodel.UserStatus, error) {
 	var res gmodel.UserStatus
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNUserStatus2graphqlᚋgraphᚋgmodelᚐUserStatus(ctx context.Context, sel ast.SelectionSet, v gmodel.UserStatus) graphql.Marshaler {
+func (ec *executionContext) marshalNUserStatus2apiᚋgraphᚋgmodelᚐUserStatus(ctx context.Context, sel ast.SelectionSet, v gmodel.UserStatus) graphql.Marshaler {
 	return v
 }
 
-func (ec *executionContext) marshalNUserToken2ᚖgraphqlᚋgraphᚋgmodelᚐUserToken(ctx context.Context, sel ast.SelectionSet, v *gmodel.UserToken) graphql.Marshaler {
+func (ec *executionContext) marshalNUserToken2ᚖapiᚋgraphᚋgmodelᚐUserToken(ctx context.Context, sel ast.SelectionSet, v *gmodel.UserToken) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")

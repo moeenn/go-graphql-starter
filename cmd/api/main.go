@@ -1,13 +1,13 @@
 package main
 
 import (
+	"api/config"
+	dbmodels "api/db/models"
+	"api/graph"
+	"api/graph/resolvers"
+	"api/middleware"
 	"context"
 	"fmt"
-	"graphql/config"
-	dbmodels "graphql/db/models"
-	"graphql/graph"
-	"graphql/graph/resolvers"
-	"graphql/middleware"
 	"log/slog"
 	"net/http"
 	"os"
@@ -42,6 +42,7 @@ func run(ctx context.Context) error {
 		Resolvers: &resolvers.Resolver{
 			Logger: logger,
 			DB:     db,
+			Config: config,
 		},
 	}))
 
@@ -73,7 +74,14 @@ func run(ctx context.Context) error {
 
 	address := config.Server.Address()
 	logger.Info("starting server", "address", address)
-	return http.ListenAndServe(address, nil)
+
+	// TOOD: implement server.Mux.
+	server := &http.Server {
+		Addr: address,
+		Handler: ,
+	}
+		
+	return server.ListenAndServe()
 }
 
 func main() {

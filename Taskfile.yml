@@ -30,7 +30,20 @@ tasks:
   "gen:token":
     cmds:
       - go run github.com/moeenn/go-token@latest
-    
+
+  # usage: NAME=create_some_tablle task migration:new    
+  "migration:new":
+    cmds:
+      - goose -s create $NAME sql
+
+  "db:migrate":
+    cmds:
+      - goose up
+
+  "db:rollback":
+    cmds:
+      - goose down-to 0
+
   run:
     cmds:
       - godotenv -f {{.ENV_FILE}} go run {{.MAIN}}
