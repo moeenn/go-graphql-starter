@@ -23,7 +23,7 @@ func (r *mutationResolver) SetUserDeletedStatus(ctx context.Context, userID uuid
 }
 
 // Users is the resolver for the users field.
-func (r *queryResolver) Users(ctx context.Context, limit int32, offset int32) (*gmodel.UsersResponse, error) {
+func (r *queryResolver) Users(ctx context.Context, limit int64, offset int64) (*gmodel.UsersResponse, error) {
 	return r.Service.GetAllUsers(ctx, limit, offset)
 }
 

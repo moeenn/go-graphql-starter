@@ -9,6 +9,8 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgerrcode"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgtype"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -28,6 +30,7 @@ func (s Service) CreateAccount(
 		return nil, fmt.Errorf("failed to hash password: %w", err)
 	}
 
+	//nolint: exhaustruct
 	now := pgtype.Timestamp{
 		Time:  time.Now(),
 		Valid: true,
@@ -43,6 +46,13 @@ func (s Service) CreateAccount(
 	}
 
 	if err := s.DB.CreateUser(ctx, newUser); err != nil {
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) {
+			if pgErr.Code == pgerrcode.UniqueViolation {
+				return nil, errors.New("user already exists")
+			}
+		}
+
 		return nil, fmt.Errorf("failed to create user: %w", err)
 	}
 
@@ -53,12 +63,18 @@ func (s Service) CreateAccount(
 
 func (s Service) GetAllUsers(
 	ctx context.Context,
-	limit int32,
-	offset int32,
+	limit int64,
+	offset int64,
 ) (*gmodel.UsersResponse, error) {
+
+	parsedLimit, parsedOffset, err := ParseLimitOffset(limit, offset)
+	if err != nil {
+		return nil, err
+	}
+
 	users, err := s.DB.GetAllUsers(ctx, models.GetAllUsersParams{
-		Limit:  int32(limit),
-		Offset: int32(offset),
+		Limit:  parsedLimit,
+		Offset: parsedOffset,
 	})
 
 	if err != nil {
@@ -72,7 +88,7 @@ func (s Service) GetAllUsers(
 
 	return &gmodel.UsersResponse{
 		Users:      mapUserRowsToResponse(users),
-		TotalCount: int32(totalCount),
+		TotalCount: totalCount,
 	}, nil
 }
 
@@ -81,10 +97,10 @@ func (s Service) SetUserDeletedStatus(
 	userID uuid.UUID,
 	deleted bool,
 ) (*gmodel.MessageResponse, error) {
-
+	//nolint: exhaustruct
 	deletedAt := pgtype.Timestamp{Time: time.Now(), Valid: true}
 	if !deleted {
-		deletedAt = pgtype.Timestamp{Valid: false}
+		deletedAt.Valid = false
 	}
 
 	err := s.DB.SetUserDeletedStatus(ctx, models.SetUserDeletedStatusParams{

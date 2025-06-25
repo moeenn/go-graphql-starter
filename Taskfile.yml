@@ -48,16 +48,19 @@ tasks:
     cmds:
       - godotenv -f {{.ENV_FILE}} go run {{.MAIN}}
 
-  "build:run":
+  generate:
     cmds:
       - task: "gen:models"
       - task: "gen:graphql"
+
+  "build:run":
+    cmds:
+      - task: generate
       - task: run
 
   build:
     cmds:
       - task: lint
       - task: test
-      - task: "gen:models"
-      - task: "gen:graphql"
+      - task: generate
       - go build -o ./bin/api {{.MAIN}}

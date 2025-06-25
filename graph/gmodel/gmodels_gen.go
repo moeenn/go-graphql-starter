@@ -45,12 +45,12 @@ type User struct {
 
 type UserToken struct {
 	AccessToken string `json:"accessToken"`
-	Expiry      int32  `json:"expiry"`
+	Expiry      int64  `json:"expiry"`
 }
 
 type UsersResponse struct {
 	Users      []*User `json:"users"`
-	TotalCount int32   `json:"totalCount"`
+	TotalCount int64   `json:"totalCount"`
 }
 
 type Role string

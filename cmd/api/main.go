@@ -40,6 +40,8 @@ func run(ctx context.Context) error {
 	}
 
 	db := dbmodels.New(dbConn)
+
+	//nolint: exhaustruct
 	graphqlConfig := graph.Config{
 		Resolvers: &resolvers.Resolver{
 			Service: &service.Service{
@@ -52,8 +54,12 @@ func run(ctx context.Context) error {
 	graphqlConfig.Directives.HasRole = directives.HasRoleDirective(logger)
 
 	srv := handler.New(graph.NewExecutableSchema(graphqlConfig))
+
+	//nolint: exhaustruct
 	srv.AddTransport(transport.Options{})
+	//nolint: exhaustruct
 	srv.AddTransport(transport.GET{})
+	//nolint: exhaustruct
 	srv.AddTransport(transport.POST{})
 
 	srv.SetQueryCache(lru.New[*ast.QueryDocument](1000))
@@ -82,7 +88,7 @@ func run(ctx context.Context) error {
 	address := config.Server.Address()
 	logger.Info("starting server", "address", address)
 
-	//nolint: exhaustructs
+	//nolint: exhaustruct
 	server := &http.Server{
 		Addr:              address,
 		Handler:           mux,

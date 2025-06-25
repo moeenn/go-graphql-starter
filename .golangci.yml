@@ -6,7 +6,6 @@ linters:
     - nilnil
     - nilerr
     - contextcheck
-    # - err113
     - gochecknoinits
     - godox
     - misspell

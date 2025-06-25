@@ -36,7 +36,7 @@ func (s Service) Login(ctx context.Context, input gmodel.LoginInput) (*gmodel.Lo
 		User: mapUserToResponse(&user),
 		Token: &gmodel.UserToken{
 			AccessToken: token,
-			Expiry:      int32(expiry),
+			Expiry:      expiry,
 		},
 	}
 

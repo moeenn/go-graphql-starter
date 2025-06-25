@@ -56,7 +56,7 @@ type MutationResolver interface {
 	SetUserDeletedStatus(ctx context.Context, userID uuid.UUID, deleted bool) (*gmodel.MessageResponse, error)
 }
 type QueryResolver interface {
-	Users(ctx context.Context, limit int32, offset int32) (*gmodel.UsersResponse, error)
+	Users(ctx context.Context, limit int64, offset int64) (*gmodel.UsersResponse, error)
 }
 
 type executableSchema struct {
@@ -202,7 +202,7 @@ type Mutation {
   login(input: LoginInput!): LoginResponse!
 }
 `, BuiltIn: false},
-	{Name: "../schema/general.graphql", Input: `scalar UUID
+	{Name: "../schema/schema.graphql", Input: `scalar UUID
 
 directive @hasRole(role: Role!) on FIELD_DEFINITION
 
@@ -410,26 +410,26 @@ func (ec *executionContext) field_Query_users_args(ctx context.Context, rawArgs 
 func (ec *executionContext) field_Query_users_argsLimit(
 	ctx context.Context,
 	rawArgs map[string]any,
-) (int32, error) {
+) (int64, error) {
 	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("limit"))
 	if tmp, ok := rawArgs["limit"]; ok {
-		return ec.unmarshalNInt2int32(ctx, tmp)
+		return ec.unmarshalNInt2int64(ctx, tmp)
 	}
 
-	var zeroVal int32
+	var zeroVal int64
 	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Query_users_argsOffset(
 	ctx context.Context,
 	rawArgs map[string]any,
-) (int32, error) {
+) (int64, error) {
 	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("offset"))
 	if tmp, ok := rawArgs["offset"]; ok {
-		return ec.unmarshalNInt2int32(ctx, tmp)
+		return ec.unmarshalNInt2int64(ctx, tmp)
 	}
 
-	var zeroVal int32
+	var zeroVal int64
 	return zeroVal, nil
 }
 
@@ -904,7 +904,7 @@ func (ec *executionContext) _Query_users(ctx context.Context, field graphql.Coll
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		directive0 := func(rctx context.Context) (any, error) {
 			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Query().Users(rctx, fc.Args["limit"].(int32), fc.Args["offset"].(int32))
+			return ec.resolvers.Query().Users(rctx, fc.Args["limit"].(int64), fc.Args["offset"].(int64))
 		}
 
 		directive1 := func(ctx context.Context) (any, error) {
@@ -1398,9 +1398,9 @@ func (ec *executionContext) _UserToken_expiry(ctx context.Context, field graphql
 		}
 		return graphql.Null
 	}
-	res := resTmp.(int32)
+	res := resTmp.(int64)
 	fc.Result = res
-	return ec.marshalNInt2int32(ctx, field.Selections, res)
+	return ec.marshalNInt2int64(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_UserToken_expiry(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1498,9 +1498,9 @@ func (ec *executionContext) _UsersResponse_totalCount(ctx context.Context, field
 		}
 		return graphql.Null
 	}
-	res := resTmp.(int32)
+	res := resTmp.(int64)
 	fc.Result = res
-	return ec.marshalNInt2int32(ctx, field.Selections, res)
+	return ec.marshalNInt2int64(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_UsersResponse_totalCount(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -4271,14 +4271,14 @@ func (ec *executionContext) unmarshalNCreateAccountInput2apiᚋgraphᚋgmodelᚐ
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNInt2int32(ctx context.Context, v any) (int32, error) {
-	res, err := graphql.UnmarshalInt32(v)
+func (ec *executionContext) unmarshalNInt2int64(ctx context.Context, v any) (int64, error) {
+	res, err := graphql.UnmarshalInt64(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNInt2int32(ctx context.Context, sel ast.SelectionSet, v int32) graphql.Marshaler {
+func (ec *executionContext) marshalNInt2int64(ctx context.Context, sel ast.SelectionSet, v int64) graphql.Marshaler {
 	_ = sel
-	res := graphql.MarshalInt32(v)
+	res := graphql.MarshalInt64(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
