@@ -1,18 +1,25 @@
 ## GraphQL API Starter
 
+A starter-kit go Golang projects using GraphQL APIs and PostgreSQL as database. Following tools and packages are used in this starter-kit:
+
+- [gqlgen](https://gqlgen.com): GraphQL server implementation (utilizing code-generation)
+- [sqlc](https://sqlc.dev): Library for accessing database (utilizing code-generation)
+- [taskfile](https://taskfile.dev): CLI tool for running project scripts 
+
+
 ### Setup
 
 ```bash
-# install required tools.
+# 01 - install required tools.
 $ bash ./scripts/tools.sh
 
-# create .env file.
+# 02 - create .env file.
 $ cp .env.example .env
 
-# generate code.
+# 03 - generate code.
 $ task generate
 
-# generate the JWT secret token.
+# 04 - generate the JWT secret token.
 $ task gen:token
 ```
 
