@@ -10,6 +10,7 @@ import (
 type ExpiringTokenArgs struct {
 	UserId        string
 	Email         string
+	Role          string
 	JwtSecret     []byte
 	ExpiryMinutes time.Duration
 }
@@ -21,6 +22,7 @@ func NewExpiringToken(args *ExpiringTokenArgs) (string, int64, error) {
 		"iat":    time.Now().Unix(),
 		"userId": args.UserId,
 		"email":  args.Email,
+		"role":   args.Role,
 	})
 
 	tokenString, err := token.SignedString(args.JwtSecret)

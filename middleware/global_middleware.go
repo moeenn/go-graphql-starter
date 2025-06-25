@@ -59,6 +59,11 @@ func NewGraphqlGlobalMiddleware(args *GlobalMiddlewareArgs) (http.Handler, error
 			return
 		}
 
+		// log incoming request information.
+		for _, op := range operations {
+			args.Logger.Info("request operation", "type", op.Type, "name", op.Name)
+		}
+
 		allOpsWhitelisted := allOperationsWhitelisted(operations, args.WhiteListedOperations)
 		if allOpsWhitelisted {
 			args.Next.ServeHTTP(w, r)
@@ -83,4 +88,12 @@ func NewGraphqlGlobalMiddleware(args *GlobalMiddlewareArgs) (http.Handler, error
 	})
 
 	return handler, nil
+}
+
+func GetJwtClaims(ctx context.Context) (*JwtClaims, error) {
+	claims, ok := ctx.Value(JwtClaimsContextKey).(*JwtClaims)
+	if !ok {
+		return nil, errors.New("failed to get jwt claims from context")
+	}
+	return claims, nil
 }

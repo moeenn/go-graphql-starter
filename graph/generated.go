@@ -44,6 +44,7 @@ type ResolverRoot interface {
 }
 
 type DirectiveRoot struct {
+	HasRole func(ctx context.Context, obj any, next graphql.Resolver, role gmodel.Role) (res any, err error)
 }
 
 type ComplexityRoot struct {
@@ -203,6 +204,13 @@ type Mutation {
 `, BuiltIn: false},
 	{Name: "../schema/general.graphql", Input: `scalar UUID
 
+directive @hasRole(role: Role!) on FIELD_DEFINITION
+
+enum Role {
+  Admin
+  User
+}
+
 type MessageResponse {
   message: String!
 }`, BuiltIn: false},
@@ -231,12 +239,12 @@ type UsersResponse {
 }
 
 extend type Query {
-  users(limit: Int!, offset: Int!): UsersResponse!
+  users(limit: Int!, offset: Int!): UsersResponse! @hasRole(role: Admin)
 }
 
 extend type Mutation {
   createAccount(input: CreateAccountInput!): MessageResponse!
-  setUserDeletedStatus(userId: UUID!, deleted: Boolean!): MessageResponse!
+  setUserDeletedStatus(userId: UUID!, deleted: Boolean!): MessageResponse! @hasRole(role: Admin)
 }
 `, BuiltIn: false},
 }
@@ -245,6 +253,34 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 // endregion ************************** generated!.gotpl **************************
 
 // region    ***************************** args.gotpl *****************************
+
+func (ec *executionContext) dir_hasRole_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := ec.dir_hasRole_argsRole(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["role"] = arg0
+	return args, nil
+}
+func (ec *executionContext) dir_hasRole_argsRole(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (gmodel.Role, error) {
+	if _, ok := rawArgs["role"]; !ok {
+		var zeroVal gmodel.Role
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("role"))
+	if tmp, ok := rawArgs["role"]; ok {
+		return ec.unmarshalNRole2apiᚋgraphᚋgmodelᚐRole(ctx, tmp)
+	}
+
+	var zeroVal gmodel.Role
+	return zeroVal, nil
+}
 
 func (ec *executionContext) field_Mutation_createAccount_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
@@ -780,8 +816,35 @@ func (ec *executionContext) _Mutation_setUserDeletedStatus(ctx context.Context, 
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().SetUserDeletedStatus(rctx, fc.Args["userId"].(uuid.UUID), fc.Args["deleted"].(bool))
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().SetUserDeletedStatus(rctx, fc.Args["userId"].(uuid.UUID), fc.Args["deleted"].(bool))
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			role, err := ec.unmarshalNRole2apiᚋgraphᚋgmodelᚐRole(ctx, "Admin")
+			if err != nil {
+				var zeroVal *gmodel.MessageResponse
+				return zeroVal, err
+			}
+			if ec.directives.HasRole == nil {
+				var zeroVal *gmodel.MessageResponse
+				return zeroVal, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, role)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*gmodel.MessageResponse); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *api/graph/gmodel.MessageResponse`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -839,8 +902,35 @@ func (ec *executionContext) _Query_users(ctx context.Context, field graphql.Coll
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Users(rctx, fc.Args["limit"].(int32), fc.Args["offset"].(int32))
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().Users(rctx, fc.Args["limit"].(int32), fc.Args["offset"].(int32))
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			role, err := ec.unmarshalNRole2apiᚋgraphᚋgmodelᚐRole(ctx, "Admin")
+			if err != nil {
+				var zeroVal *gmodel.UsersResponse
+				return zeroVal, err
+			}
+			if ec.directives.HasRole == nil {
+				var zeroVal *gmodel.UsersResponse
+				return zeroVal, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, role)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*gmodel.UsersResponse); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *api/graph/gmodel.UsersResponse`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -4228,6 +4318,16 @@ func (ec *executionContext) marshalNMessageResponse2ᚖapiᚋgraphᚋgmodelᚐMe
 		return graphql.Null
 	}
 	return ec._MessageResponse(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNRole2apiᚋgraphᚋgmodelᚐRole(ctx context.Context, v any) (gmodel.Role, error) {
+	var res gmodel.Role
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNRole2apiᚋgraphᚋgmodelᚐRole(ctx context.Context, sel ast.SelectionSet, v gmodel.Role) graphql.Marshaler {
+	return v
 }
 
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v any) (string, error) {

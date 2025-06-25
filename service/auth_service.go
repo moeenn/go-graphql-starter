@@ -23,6 +23,7 @@ func (s Service) Login(ctx context.Context, input gmodel.LoginInput) (*gmodel.Lo
 	token, expiry, err := jwt.NewExpiringToken(&jwt.ExpiringTokenArgs{
 		UserId:        user.ID.String(),
 		Email:         user.Email,
+		Role:          string(user.Role.UserRole),
 		JwtSecret:     s.Config.Auth.JwtSecret,
 		ExpiryMinutes: s.Config.Auth.JwtExpiryMinutes,
 	})

@@ -23,10 +23,10 @@ type UsersResponse {
 }
 
 extend type Query {
-  users(limit: Int!, offset: Int!): UsersResponse!
+  users(limit: Int!, offset: Int!): UsersResponse! @hasRole(role: Admin)
 }
 
 extend type Mutation {
   createAccount(input: CreateAccountInput!): MessageResponse!
-  setUserDeletedStatus(userId: UUID!, deleted: Boolean!): MessageResponse!
+  setUserDeletedStatus(userId: UUID!, deleted: Boolean!): MessageResponse! @hasRole(role: Admin)
 }

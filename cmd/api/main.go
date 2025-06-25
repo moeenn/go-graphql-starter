@@ -4,6 +4,7 @@ import (
 	"api/config"
 	dbmodels "api/db/models"
 	"api/graph"
+	"api/graph/directives"
 	"api/graph/resolvers"
 	"api/middleware"
 	"api/service"
@@ -39,7 +40,7 @@ func run(ctx context.Context) error {
 	}
 
 	db := dbmodels.New(dbConn)
-	srv := handler.New(graph.NewExecutableSchema(graph.Config{
+	graphqlConfig := graph.Config{
 		Resolvers: &resolvers.Resolver{
 			Service: &service.Service{
 				Logger: logger,
@@ -47,8 +48,10 @@ func run(ctx context.Context) error {
 				Config: config,
 			},
 		},
-	}))
+	}
+	graphqlConfig.Directives.HasRole = directives.HasRoleDirective(logger)
 
+	srv := handler.New(graph.NewExecutableSchema(graphqlConfig))
 	srv.AddTransport(transport.Options{})
 	srv.AddTransport(transport.GET{})
 	srv.AddTransport(transport.POST{})

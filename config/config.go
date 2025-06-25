@@ -13,7 +13,7 @@ const (
 	defaultServerPort       = "5000"
 	defaultServerTimeout    = time.Second * 5
 	defaultGraphqlUrl       = "/graphql"
-	defaultGraphiqlUrl      = "/graphiql"
+	defaultGraphiqlUrl      = "/"
 	defaultJwtExpiryMinutes = time.Minute * 60 * 24 // 24 hours.
 )
 

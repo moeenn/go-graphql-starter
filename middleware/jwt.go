@@ -13,6 +13,7 @@ import (
 type JwtClaims struct {
 	UserId string
 	Email  string
+	Role   string
 }
 
 func validateAndParseJwtClaims(jwtSecret []byte, bearerToken string) (*JwtClaims, error) {
@@ -58,9 +59,15 @@ func jwtClaimsFromMap(claims map[string]any) (*JwtClaims, error) {
 		return nil, errors.New("invalid or missing email")
 	}
 
+	role, roleOk := claims["role"].(string)
+	if !roleOk {
+		return nil, errors.New("invalid or missing role")
+	}
+
 	return &JwtClaims{
 		UserId: userId,
 		Email:  email,
+		Role:   role,
 	}, nil
 }
 

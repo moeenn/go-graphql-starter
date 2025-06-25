@@ -1,5 +1,12 @@
 scalar UUID
 
+directive @hasRole(role: Role!) on FIELD_DEFINITION
+
+enum Role {
+  Admin
+  User
+}
+
 type MessageResponse {
   message: String!
 }
