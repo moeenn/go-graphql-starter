@@ -6,14 +6,13 @@
 # install required tools.
 $ bash ./scripts/tools.sh
 
+# create .env file.
+$ cp .env.example .env
+
 # generate code.
 $ task generate
-```
 
-
-### Generate JWT Secret
-
-```bash
+# generate the JWT secret token.
 $ task gen:token
 ```
 
