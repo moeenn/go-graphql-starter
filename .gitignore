@@ -1,3 +1,4 @@
 bin
-#graph
-#db/models
+db/models
+graph/gmodel
+graph/generated.go
