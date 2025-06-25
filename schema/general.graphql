@@ -1,0 +1,5 @@
+scalar UUID
+
+type MessageResponse {
+  message: String!
+}

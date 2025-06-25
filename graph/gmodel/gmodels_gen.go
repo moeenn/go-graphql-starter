@@ -15,10 +15,6 @@ type CreateAccountInput struct {
 	ConfirmPassword string `json:"confirmPassword"`
 }
 
-type CreateAccountResponse struct {
-	Message string `json:"message"`
-}
-
 type LoginInput struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
@@ -27,6 +23,10 @@ type LoginInput struct {
 type LoginResponse struct {
 	User  *User      `json:"user"`
 	Token *UserToken `json:"token"`
+}
+
+type MessageResponse struct {
+	Message string `json:"message"`
 }
 
 type Mutation struct {
@@ -46,6 +46,11 @@ type User struct {
 type UserToken struct {
 	AccessToken string `json:"accessToken"`
 	Expiry      int32  `json:"expiry"`
+}
+
+type UsersResponse struct {
+	Users      []*User `json:"users"`
+	TotalCount int32   `json:"totalCount"`
 }
 
 type UserStatus string

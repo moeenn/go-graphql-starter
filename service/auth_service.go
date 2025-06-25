@@ -3,7 +3,6 @@ package service
 import (
 	"api/graph/gmodel"
 	"api/helpers/jwt"
-	"api/service/dto"
 	"context"
 	"errors"
 	"fmt"
@@ -33,7 +32,7 @@ func (s Service) Login(ctx context.Context, input gmodel.LoginInput) (*gmodel.Lo
 	}
 
 	res := &gmodel.LoginResponse{
-		User: dto.MapUserToResponse(&user),
+		User: mapUserToResponse(&user),
 		Token: &gmodel.UserToken{
 			AccessToken: token,
 			Expiry:      int32(expiry),

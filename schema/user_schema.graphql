@@ -17,15 +17,16 @@ input CreateAccountInput {
   confirmPassword: String!
 }
 
-type CreateAccountResponse {
-  message: String!
+type UsersResponse {
+  users: [User!]!
+  totalCount: Int! 
 }
 
 extend type Query {
-  users: [User!]!
+  users(limit: Int!, offset: Int!): UsersResponse!
 }
 
 extend type Mutation {
-  createAccount(input: CreateAccountInput!): CreateAccountResponse!
-  disableUser(userId: String!): User!
+  createAccount(input: CreateAccountInput!): MessageResponse!
+  setUserDeletedStatus(userId: UUID!, deleted: Boolean!): MessageResponse!
 }

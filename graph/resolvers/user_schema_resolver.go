@@ -8,22 +8,23 @@ import (
 	"api/graph"
 	"api/graph/gmodel"
 	"context"
-	"fmt"
+
+	"github.com/google/uuid"
 )
 
 // CreateAccount is the resolver for the createAccount field.
-func (r *mutationResolver) CreateAccount(ctx context.Context, input gmodel.CreateAccountInput) (*gmodel.CreateAccountResponse, error) {
+func (r *mutationResolver) CreateAccount(ctx context.Context, input gmodel.CreateAccountInput) (*gmodel.MessageResponse, error) {
 	return r.Service.CreateAccount(ctx, input)
 }
 
-// DisableUser is the resolver for the disableUser field.
-func (r *mutationResolver) DisableUser(ctx context.Context, userID string) (*gmodel.User, error) {
-	panic(fmt.Errorf("not implemented: DisableUser - disableUser"))
+// SetUserDeletedStatus is the resolver for the setUserDeletedStatus field.
+func (r *mutationResolver) SetUserDeletedStatus(ctx context.Context, userID uuid.UUID, deleted bool) (*gmodel.MessageResponse, error) {
+	return r.Service.SetUserDeletedStatus(ctx, userID, deleted)
 }
 
 // Users is the resolver for the users field.
-func (r *queryResolver) Users(ctx context.Context) ([]*gmodel.User, error) {
-	panic(fmt.Errorf("not implemented: Users - users"))
+func (r *queryResolver) Users(ctx context.Context, limit int32, offset int32) (*gmodel.UsersResponse, error) {
+	return r.Service.GetAllUsers(ctx, limit, offset)
 }
 
 // Query returns graph.QueryResolver implementation.

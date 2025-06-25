@@ -14,6 +14,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
+	"github.com/google/uuid"
 	gqlparser "github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
 )
@@ -50,11 +51,11 @@ type ComplexityRoot struct {
 
 type MutationResolver interface {
 	Login(ctx context.Context, input gmodel.LoginInput) (*gmodel.LoginResponse, error)
-	CreateAccount(ctx context.Context, input gmodel.CreateAccountInput) (*gmodel.CreateAccountResponse, error)
-	DisableUser(ctx context.Context, userID string) (*gmodel.User, error)
+	CreateAccount(ctx context.Context, input gmodel.CreateAccountInput) (*gmodel.MessageResponse, error)
+	SetUserDeletedStatus(ctx context.Context, userID uuid.UUID, deleted bool) (*gmodel.MessageResponse, error)
 }
 type QueryResolver interface {
-	Users(ctx context.Context) ([]*gmodel.User, error)
+	Users(ctx context.Context, limit int32, offset int32) (*gmodel.UsersResponse, error)
 }
 
 type executableSchema struct {
@@ -200,6 +201,11 @@ type Mutation {
   login(input: LoginInput!): LoginResponse!
 }
 `, BuiltIn: false},
+	{Name: "../schema/general.graphql", Input: `scalar UUID
+
+type MessageResponse {
+  message: String!
+}`, BuiltIn: false},
 	{Name: "../schema/user_schema.graphql", Input: `enum UserStatus {
   Active
   Inactive
@@ -219,17 +225,18 @@ input CreateAccountInput {
   confirmPassword: String!
 }
 
-type CreateAccountResponse {
-  message: String!
+type UsersResponse {
+  users: [User!]!
+  totalCount: Int! 
 }
 
 extend type Query {
-  users: [User!]!
+  users(limit: Int!, offset: Int!): UsersResponse!
 }
 
 extend type Mutation {
-  createAccount(input: CreateAccountInput!): CreateAccountResponse!
-  disableUser(userId: String!): User!
+  createAccount(input: CreateAccountInput!): MessageResponse!
+  setUserDeletedStatus(userId: UUID!, deleted: Boolean!): MessageResponse!
 }
 `, BuiltIn: false},
 }
@@ -262,29 +269,6 @@ func (ec *executionContext) field_Mutation_createAccount_argsInput(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Mutation_disableUser_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
-	var err error
-	args := map[string]any{}
-	arg0, err := ec.field_Mutation_disableUser_argsUserID(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["userId"] = arg0
-	return args, nil
-}
-func (ec *executionContext) field_Mutation_disableUser_argsUserID(
-	ctx context.Context,
-	rawArgs map[string]any,
-) (string, error) {
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
-	if tmp, ok := rawArgs["userId"]; ok {
-		return ec.unmarshalNString2string(ctx, tmp)
-	}
-
-	var zeroVal string
-	return zeroVal, nil
-}
-
 func (ec *executionContext) field_Mutation_login_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
@@ -308,6 +292,47 @@ func (ec *executionContext) field_Mutation_login_argsInput(
 	return zeroVal, nil
 }
 
+func (ec *executionContext) field_Mutation_setUserDeletedStatus_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := ec.field_Mutation_setUserDeletedStatus_argsUserID(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["userId"] = arg0
+	arg1, err := ec.field_Mutation_setUserDeletedStatus_argsDeleted(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["deleted"] = arg1
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_setUserDeletedStatus_argsUserID(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (uuid.UUID, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
+	if tmp, ok := rawArgs["userId"]; ok {
+		return ec.unmarshalNUUID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, tmp)
+	}
+
+	var zeroVal uuid.UUID
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_setUserDeletedStatus_argsDeleted(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (bool, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("deleted"))
+	if tmp, ok := rawArgs["deleted"]; ok {
+		return ec.unmarshalNBoolean2bool(ctx, tmp)
+	}
+
+	var zeroVal bool
+	return zeroVal, nil
+}
+
 func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
@@ -328,6 +353,47 @@ func (ec *executionContext) field_Query___type_argsName(
 	}
 
 	var zeroVal string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Query_users_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := ec.field_Query_users_argsLimit(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["limit"] = arg0
+	arg1, err := ec.field_Query_users_argsOffset(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["offset"] = arg1
+	return args, nil
+}
+func (ec *executionContext) field_Query_users_argsLimit(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (int32, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("limit"))
+	if tmp, ok := rawArgs["limit"]; ok {
+		return ec.unmarshalNInt2int32(ctx, tmp)
+	}
+
+	var zeroVal int32
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Query_users_argsOffset(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (int32, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("offset"))
+	if tmp, ok := rawArgs["offset"]; ok {
+		return ec.unmarshalNInt2int32(ctx, tmp)
+	}
+
+	var zeroVal int32
 	return zeroVal, nil
 }
 
@@ -430,50 +496,6 @@ func (ec *executionContext) field___Type_fields_argsIncludeDeprecated(
 // endregion ************************** directives.gotpl **************************
 
 // region    **************************** field.gotpl *****************************
-
-func (ec *executionContext) _CreateAccountResponse_message(ctx context.Context, field graphql.CollectedField, obj *gmodel.CreateAccountResponse) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_CreateAccountResponse_message(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Message, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_CreateAccountResponse_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "CreateAccountResponse",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
 
 func (ec *executionContext) _LoginResponse_user(ctx context.Context, field graphql.CollectedField, obj *gmodel.LoginResponse) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_LoginResponse_user(ctx, field)
@@ -581,6 +603,50 @@ func (ec *executionContext) fieldContext_LoginResponse_token(_ context.Context, 
 	return fc, nil
 }
 
+func (ec *executionContext) _MessageResponse_message(ctx context.Context, field graphql.CollectedField, obj *gmodel.MessageResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_MessageResponse_message(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Message, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_MessageResponse_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MessageResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Mutation_login(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Mutation_login(ctx, field)
 	if err != nil {
@@ -668,9 +734,9 @@ func (ec *executionContext) _Mutation_createAccount(ctx context.Context, field g
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*gmodel.CreateAccountResponse)
+	res := resTmp.(*gmodel.MessageResponse)
 	fc.Result = res
-	return ec.marshalNCreateAccountResponse2ᚖapiᚋgraphᚋgmodelᚐCreateAccountResponse(ctx, field.Selections, res)
+	return ec.marshalNMessageResponse2ᚖapiᚋgraphᚋgmodelᚐMessageResponse(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_createAccount(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -682,9 +748,9 @@ func (ec *executionContext) fieldContext_Mutation_createAccount(ctx context.Cont
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "message":
-				return ec.fieldContext_CreateAccountResponse_message(ctx, field)
+				return ec.fieldContext_MessageResponse_message(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type CreateAccountResponse", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type MessageResponse", field.Name)
 		},
 	}
 	defer func() {
@@ -701,8 +767,8 @@ func (ec *executionContext) fieldContext_Mutation_createAccount(ctx context.Cont
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_disableUser(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_disableUser(ctx, field)
+func (ec *executionContext) _Mutation_setUserDeletedStatus(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_setUserDeletedStatus(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -715,7 +781,7 @@ func (ec *executionContext) _Mutation_disableUser(ctx context.Context, field gra
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().DisableUser(rctx, fc.Args["userId"].(string))
+		return ec.resolvers.Mutation().SetUserDeletedStatus(rctx, fc.Args["userId"].(uuid.UUID), fc.Args["deleted"].(bool))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -727,12 +793,12 @@ func (ec *executionContext) _Mutation_disableUser(ctx context.Context, field gra
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*gmodel.User)
+	res := resTmp.(*gmodel.MessageResponse)
 	fc.Result = res
-	return ec.marshalNUser2ᚖapiᚋgraphᚋgmodelᚐUser(ctx, field.Selections, res)
+	return ec.marshalNMessageResponse2ᚖapiᚋgraphᚋgmodelᚐMessageResponse(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_disableUser(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_setUserDeletedStatus(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -740,18 +806,10 @@ func (ec *executionContext) fieldContext_Mutation_disableUser(ctx context.Contex
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "id":
-				return ec.fieldContext_User_id(ctx, field)
-			case "email":
-				return ec.fieldContext_User_email(ctx, field)
-			case "status":
-				return ec.fieldContext_User_status(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_User_createdAt(ctx, field)
-			case "updatedAt":
-				return ec.fieldContext_User_updatedAt(ctx, field)
+			case "message":
+				return ec.fieldContext_MessageResponse_message(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type MessageResponse", field.Name)
 		},
 	}
 	defer func() {
@@ -761,7 +819,7 @@ func (ec *executionContext) fieldContext_Mutation_disableUser(ctx context.Contex
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_disableUser_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_setUserDeletedStatus_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -782,7 +840,7 @@ func (ec *executionContext) _Query_users(ctx context.Context, field graphql.Coll
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Users(rctx)
+		return ec.resolvers.Query().Users(rctx, fc.Args["limit"].(int32), fc.Args["offset"].(int32))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -794,12 +852,12 @@ func (ec *executionContext) _Query_users(ctx context.Context, field graphql.Coll
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*gmodel.User)
+	res := resTmp.(*gmodel.UsersResponse)
 	fc.Result = res
-	return ec.marshalNUser2ᚕᚖapiᚋgraphᚋgmodelᚐUserᚄ(ctx, field.Selections, res)
+	return ec.marshalNUsersResponse2ᚖapiᚋgraphᚋgmodelᚐUsersResponse(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Query_users(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Query_users(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
@@ -807,19 +865,24 @@ func (ec *executionContext) fieldContext_Query_users(_ context.Context, field gr
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "id":
-				return ec.fieldContext_User_id(ctx, field)
-			case "email":
-				return ec.fieldContext_User_email(ctx, field)
-			case "status":
-				return ec.fieldContext_User_status(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_User_createdAt(ctx, field)
-			case "updatedAt":
-				return ec.fieldContext_User_updatedAt(ctx, field)
+			case "users":
+				return ec.fieldContext_UsersResponse_users(ctx, field)
+			case "totalCount":
+				return ec.fieldContext_UsersResponse_totalCount(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type UsersResponse", field.Name)
 		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_users_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
 	}
 	return fc, nil
 }
@@ -1253,6 +1316,106 @@ func (ec *executionContext) _UserToken_expiry(ctx context.Context, field graphql
 func (ec *executionContext) fieldContext_UserToken_expiry(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "UserToken",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UsersResponse_users(ctx context.Context, field graphql.CollectedField, obj *gmodel.UsersResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UsersResponse_users(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Users, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*gmodel.User)
+	fc.Result = res
+	return ec.marshalNUser2ᚕᚖapiᚋgraphᚋgmodelᚐUserᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UsersResponse_users(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UsersResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_User_id(ctx, field)
+			case "email":
+				return ec.fieldContext_User_email(ctx, field)
+			case "status":
+				return ec.fieldContext_User_status(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_User_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_User_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UsersResponse_totalCount(ctx context.Context, field graphql.CollectedField, obj *gmodel.UsersResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UsersResponse_totalCount(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TotalCount, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int32)
+	fc.Result = res
+	return ec.marshalNInt2int32(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UsersResponse_totalCount(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UsersResponse",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -3297,19 +3460,24 @@ func (ec *executionContext) unmarshalInputLoginInput(ctx context.Context, obj an
 
 // region    **************************** object.gotpl ****************************
 
-var createAccountResponseImplementors = []string{"CreateAccountResponse"}
+var loginResponseImplementors = []string{"LoginResponse"}
 
-func (ec *executionContext) _CreateAccountResponse(ctx context.Context, sel ast.SelectionSet, obj *gmodel.CreateAccountResponse) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, createAccountResponseImplementors)
+func (ec *executionContext) _LoginResponse(ctx context.Context, sel ast.SelectionSet, obj *gmodel.LoginResponse) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, loginResponseImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("CreateAccountResponse")
-		case "message":
-			out.Values[i] = ec._CreateAccountResponse_message(ctx, field, obj)
+			out.Values[i] = graphql.MarshalString("LoginResponse")
+		case "user":
+			out.Values[i] = ec._LoginResponse_user(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "token":
+			out.Values[i] = ec._LoginResponse_token(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -3336,24 +3504,19 @@ func (ec *executionContext) _CreateAccountResponse(ctx context.Context, sel ast.
 	return out
 }
 
-var loginResponseImplementors = []string{"LoginResponse"}
+var messageResponseImplementors = []string{"MessageResponse"}
 
-func (ec *executionContext) _LoginResponse(ctx context.Context, sel ast.SelectionSet, obj *gmodel.LoginResponse) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, loginResponseImplementors)
+func (ec *executionContext) _MessageResponse(ctx context.Context, sel ast.SelectionSet, obj *gmodel.MessageResponse) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, messageResponseImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("LoginResponse")
-		case "user":
-			out.Values[i] = ec._LoginResponse_user(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "token":
-			out.Values[i] = ec._LoginResponse_token(ctx, field, obj)
+			out.Values[i] = graphql.MarshalString("MessageResponse")
+		case "message":
+			out.Values[i] = ec._MessageResponse_message(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -3413,9 +3576,9 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "disableUser":
+		case "setUserDeletedStatus":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_disableUser(ctx, field)
+				return ec._Mutation_setUserDeletedStatus(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
@@ -3592,6 +3755,50 @@ func (ec *executionContext) _UserToken(ctx context.Context, sel ast.SelectionSet
 			}
 		case "expiry":
 			out.Values[i] = ec._UserToken_expiry(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var usersResponseImplementors = []string{"UsersResponse"}
+
+func (ec *executionContext) _UsersResponse(ctx context.Context, sel ast.SelectionSet, obj *gmodel.UsersResponse) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, usersResponseImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("UsersResponse")
+		case "users":
+			out.Values[i] = ec._UsersResponse_users(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "totalCount":
+			out.Values[i] = ec._UsersResponse_totalCount(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -3974,20 +4181,6 @@ func (ec *executionContext) unmarshalNCreateAccountInput2apiᚋgraphᚋgmodelᚐ
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNCreateAccountResponse2apiᚋgraphᚋgmodelᚐCreateAccountResponse(ctx context.Context, sel ast.SelectionSet, v gmodel.CreateAccountResponse) graphql.Marshaler {
-	return ec._CreateAccountResponse(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNCreateAccountResponse2ᚖapiᚋgraphᚋgmodelᚐCreateAccountResponse(ctx context.Context, sel ast.SelectionSet, v *gmodel.CreateAccountResponse) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._CreateAccountResponse(ctx, sel, v)
-}
-
 func (ec *executionContext) unmarshalNInt2int32(ctx context.Context, v any) (int32, error) {
 	res, err := graphql.UnmarshalInt32(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -4023,6 +4216,20 @@ func (ec *executionContext) marshalNLoginResponse2ᚖapiᚋgraphᚋgmodelᚐLogi
 	return ec._LoginResponse(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNMessageResponse2apiᚋgraphᚋgmodelᚐMessageResponse(ctx context.Context, sel ast.SelectionSet, v gmodel.MessageResponse) graphql.Marshaler {
+	return ec._MessageResponse(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNMessageResponse2ᚖapiᚋgraphᚋgmodelᚐMessageResponse(ctx context.Context, sel ast.SelectionSet, v *gmodel.MessageResponse) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._MessageResponse(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v any) (string, error) {
 	res, err := graphql.UnmarshalString(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -4039,8 +4246,20 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 	return res
 }
 
-func (ec *executionContext) marshalNUser2apiᚋgraphᚋgmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v gmodel.User) graphql.Marshaler {
-	return ec._User(ctx, sel, &v)
+func (ec *executionContext) unmarshalNUUID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx context.Context, v any) (uuid.UUID, error) {
+	res, err := graphql.UnmarshalUUID(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNUUID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx context.Context, sel ast.SelectionSet, v uuid.UUID) graphql.Marshaler {
+	_ = sel
+	res := graphql.MarshalUUID(v)
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+	}
+	return res
 }
 
 func (ec *executionContext) marshalNUser2ᚕᚖapiᚋgraphᚋgmodelᚐUserᚄ(ctx context.Context, sel ast.SelectionSet, v []*gmodel.User) graphql.Marshaler {
@@ -4115,6 +4334,20 @@ func (ec *executionContext) marshalNUserToken2ᚖapiᚋgraphᚋgmodelᚐUserToke
 		return graphql.Null
 	}
 	return ec._UserToken(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNUsersResponse2apiᚋgraphᚋgmodelᚐUsersResponse(ctx context.Context, sel ast.SelectionSet, v gmodel.UsersResponse) graphql.Marshaler {
+	return ec._UsersResponse(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNUsersResponse2ᚖapiᚋgraphᚋgmodelᚐUsersResponse(ctx context.Context, sel ast.SelectionSet, v *gmodel.UsersResponse) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._UsersResponse(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalN__Directive2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx context.Context, sel ast.SelectionSet, v introspection.Directive) graphql.Marshaler {
