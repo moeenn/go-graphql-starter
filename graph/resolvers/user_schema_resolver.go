@@ -11,6 +11,11 @@ import (
 	"fmt"
 )
 
+// CreateAccount is the resolver for the createAccount field.
+func (r *mutationResolver) CreateAccount(ctx context.Context, input gmodel.CreateAccountInput) (*gmodel.CreateAccountResponse, error) {
+	return r.Service.CreateAccount(ctx, input)
+}
+
 // DisableUser is the resolver for the disableUser field.
 func (r *mutationResolver) DisableUser(ctx context.Context, userID string) (*gmodel.User, error) {
 	panic(fmt.Errorf("not implemented: DisableUser - disableUser"))

@@ -11,10 +11,21 @@ type User {
   updatedAt: String!
 }
 
+input CreateAccountInput {
+  email: String!
+  password: String!
+  confirmPassword: String!
+}
+
+type CreateAccountResponse {
+  message: String!
+}
+
 extend type Query {
   users: [User!]!
 }
 
 extend type Mutation {
+  createAccount(input: CreateAccountInput!): CreateAccountResponse!
   disableUser(userId: String!): User!
 }

@@ -1,13 +1,9 @@
 package resolvers
 
 import (
-	"api/config"
-	dbmodels "api/db/models"
-	"log/slog"
+	"api/service"
 )
 
 type Resolver struct {
-	Logger *slog.Logger
-	DB     *dbmodels.Queries
-	Config *config.Config
+	Service *service.Service
 }

@@ -38,6 +38,57 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) error {
 	return err
 }
 
+const getAllUsers = `-- name: GetAllUsers :many
+select id, email, password, role, created_at, updated_at, deleted_at, count(*) over() as total_count from users
+limit $1
+offset $2
+`
+
+type GetAllUsersParams struct {
+	Limit  int32
+	Offset int32
+}
+
+type GetAllUsersRow struct {
+	ID         uuid.UUID
+	Email      string
+	Password   string
+	Role       NullUserRole
+	CreatedAt  pgtype.Timestamp
+	UpdatedAt  pgtype.Timestamp
+	DeletedAt  pgtype.Timestamp
+	TotalCount int64
+}
+
+func (q *Queries) GetAllUsers(ctx context.Context, arg GetAllUsersParams) ([]GetAllUsersRow, error) {
+	rows, err := q.db.Query(ctx, getAllUsers, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetAllUsersRow
+	for rows.Next() {
+		var i GetAllUsersRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Email,
+			&i.Password,
+			&i.Role,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.DeletedAt,
+			&i.TotalCount,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getUserByEmail = `-- name: GetUserByEmail :one
 select id, email, password, role, created_at, updated_at, deleted_at from users
 where email = $1
@@ -58,45 +109,6 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 		&i.DeletedAt,
 	)
 	return i, err
-}
-
-const getUsers = `-- name: GetUsers :many
-select id, email, password, role, created_at, updated_at, deleted_at from users
-limit $1
-offset $2
-`
-
-type GetUsersParams struct {
-	Limit  int32
-	Offset int32
-}
-
-func (q *Queries) GetUsers(ctx context.Context, arg GetUsersParams) ([]User, error) {
-	rows, err := q.db.Query(ctx, getUsers, arg.Limit, arg.Offset)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []User
-	for rows.Next() {
-		var i User
-		if err := rows.Scan(
-			&i.ID,
-			&i.Email,
-			&i.Password,
-			&i.Role,
-			&i.CreatedAt,
-			&i.UpdatedAt,
-			&i.DeletedAt,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
 }
 
 const setUserDeletedStatus = `-- name: SetUserDeletedStatus :exec

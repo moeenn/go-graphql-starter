@@ -1,5 +1,5 @@
--- name: GetUsers :many
-select * from users
+-- name: GetAllUsers :many
+select *, count(*) over() as total_count from users
 limit $1
 offset $2;
 

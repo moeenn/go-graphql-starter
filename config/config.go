@@ -20,6 +20,7 @@ const (
 var (
 	defaultGraphqlWhitelistOperations = []string{
 		"login",
+		"createAccount",
 	}
 )
 

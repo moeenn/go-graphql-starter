@@ -6,6 +6,7 @@ import (
 	"api/graph"
 	"api/graph/resolvers"
 	"api/middleware"
+	"api/service"
 	"context"
 	"fmt"
 	"log/slog"
@@ -40,9 +41,11 @@ func run(ctx context.Context) error {
 	db := dbmodels.New(dbConn)
 	srv := handler.New(graph.NewExecutableSchema(graph.Config{
 		Resolvers: &resolvers.Resolver{
-			Logger: logger,
-			DB:     db,
-			Config: config,
+			Service: &service.Service{
+				Logger: logger,
+				DB:     db,
+				Config: config,
+			},
 		},
 	}))
 
@@ -69,18 +72,23 @@ func run(ctx context.Context) error {
 		return fmt.Errorf("failed to initialize global middleware: %w", err)
 	}
 
-	http.Handle(config.Server.GraphiqlUrl, playground.Handler("GraphQL playground", config.Server.GraphqlUrl))
-	http.Handle(config.Server.GraphqlUrl, globalMiddleware)
+	mux := http.NewServeMux()
+	mux.Handle(config.Server.GraphiqlUrl, playground.Handler("GraphQL playground", config.Server.GraphqlUrl))
+	mux.Handle(config.Server.GraphqlUrl, globalMiddleware)
 
 	address := config.Server.Address()
 	logger.Info("starting server", "address", address)
 
-	// TOOD: implement server.Mux.
-	server := &http.Server {
-		Addr: address,
-		Handler: ,
+	//nolint: exhaustructs
+	server := &http.Server{
+		Addr:              address,
+		Handler:           mux,
+		ReadTimeout:       config.Server.Timeout,
+		WriteTimeout:      config.Server.Timeout,
+		IdleTimeout:       config.Server.Timeout,
+		ReadHeaderTimeout: config.Server.Timeout,
 	}
-		
+
 	return server.ListenAndServe()
 }
 
