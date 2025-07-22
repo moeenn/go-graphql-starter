@@ -2,12 +2,12 @@ package main
 
 import (
 	"api/config"
-	dbmodels "api/db/models"
 	"api/graph"
 	"api/graph/directives"
 	"api/graph/resolvers"
-	"api/middleware"
-	"api/service"
+	"api/internal/middleware"
+	"api/internal/persistence"
+	"api/internal/service"
 	"context"
 	"fmt"
 	"log/slog"
@@ -19,7 +19,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler/lru"
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/99designs/gqlgen/graphql/playground"
-	"github.com/jackc/pgx/v5"
+	"github.com/jmoiron/sqlx"
 	"github.com/vektah/gqlparser/v2/ast"
 )
 
@@ -30,23 +30,25 @@ func run(ctx context.Context) error {
 		return fmt.Errorf("config error: %w", err)
 	}
 
-	dbConn, err := pgx.Connect(ctx, config.Database.URI)
+	// connect to database.
+	db, err := sqlx.Open("postgres", config.Database.URI)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to open database connection: %w", err)
 	}
-	defer dbConn.Close(ctx)
-	if err := dbConn.Ping(ctx); err != nil {
-		return err
+	defer db.Close()
+
+	if err := db.PingContext(ctx); err != nil {
+		return fmt.Errorf("failed to ping database: %w", err)
 	}
 
-	db := dbmodels.New(dbConn)
+	persistence := persistence.NewPersistence(db, logger)
 
 	//nolint: exhaustruct
 	graphqlConfig := graph.Config{
 		Resolvers: &resolvers.Resolver{
 			Service: &service.Service{
 				Logger: logger,
-				DB:     db,
+				DB:     persistence,
 				Config: config,
 			},
 		},

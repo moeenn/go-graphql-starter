@@ -2,10 +2,9 @@ package directives
 
 import (
 	"api/graph/gmodel"
-	"api/middleware"
+	"api/internal/middleware"
 	"context"
 	"errors"
-
 	"log/slog"
 
 	"github.com/99designs/gqlgen/graphql"

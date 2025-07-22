@@ -2,7 +2,8 @@ package service
 
 import (
 	"api/config"
-	dbmodels "api/db/models"
+	"api/internal/persistence"
+
 	"fmt"
 	"log/slog"
 	"math"
@@ -10,10 +11,11 @@ import (
 
 type Service struct {
 	Logger *slog.Logger
-	DB     *dbmodels.Queries
+	DB     *persistence.Persistence
 	Config *config.Config
 }
 
+// TODO: check if required.
 func safeInt64ToInt32(val int64) (int32, error) {
 	if val > math.MaxInt32 || val < math.MinInt32 {
 		return 0, fmt.Errorf("value %d out of int32 range %d", val, math.MaxInt32)

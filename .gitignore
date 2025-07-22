@@ -1,5 +1,4 @@
 .env
 bin
-db/models
 graph/gmodel
 graph/generated.go

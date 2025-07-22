@@ -1,7 +1,7 @@
 package resolvers
 
 import (
-	"api/service"
+	"api/internal/service"
 )
 
 type Resolver struct {

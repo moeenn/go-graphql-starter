@@ -1,8 +1,8 @@
 package service
 
 import (
-	"api/db/models"
 	"api/graph/gmodel"
+	"api/internal/models"
 	"time"
 )
 
@@ -17,30 +17,30 @@ func mapUserToResponse(user *models.User) *gmodel.User {
 	}
 
 	return &gmodel.User{
-		ID:        user.ID.String(),
+		ID:        user.Id,
 		Email:     user.Email,
 		Status:    status,
-		CreatedAt: formatTime(user.CreatedAt.Time),
-		UpdatedAt: formatTime(user.UpdatedAt.Time),
+		CreatedAt: formatTime(user.CreatedAt),
+		UpdatedAt: formatTime(user.UpdatedAt),
 	}
 }
 
-func mapUserRowToResponse(row models.GetAllUsersRow) *gmodel.User {
+func mapUserRowToResponse(row *models.User) *gmodel.User {
 	status := gmodel.UserStatusActive
 	if row.DeletedAt.Valid {
 		status = gmodel.UserStatusInactive
 	}
 
 	return &gmodel.User{
-		ID:        row.ID.String(),
+		ID:        row.Id,
 		Email:     row.Email,
 		Status:    status,
-		CreatedAt: formatTime(row.CreatedAt.Time),
-		UpdatedAt: formatTime(row.UpdatedAt.Time),
+		CreatedAt: formatTime(row.CreatedAt),
+		UpdatedAt: formatTime(row.UpdatedAt),
 	}
 }
 
-func mapUserRowsToResponse(rows []models.GetAllUsersRow) []*gmodel.User {
+func mapUserRowsToResponse(rows []*models.User) []*gmodel.User {
 	size := len(rows)
 	res := make([]*gmodel.User, size)
 	for i := range size {

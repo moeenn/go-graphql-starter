@@ -1,17 +1,16 @@
 package service
 
 import (
-	"api/db/models"
 	"api/graph/gmodel"
+	"api/internal/models"
+	"api/internal/persistence"
 	"context"
+	"database/sql"
 	"errors"
 	"fmt"
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/jackc/pgerrcode"
-	"github.com/jackc/pgx/v5/pgconn"
-	"github.com/jackc/pgx/v5/pgtype"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -30,29 +29,17 @@ func (s Service) CreateAccount(
 		return nil, fmt.Errorf("failed to hash password: %w", err)
 	}
 
-	//nolint: exhaustruct
-	now := pgtype.Timestamp{
-		Time:  time.Now(),
-		Valid: true,
-	}
-
-	newUser := models.CreateUserParams{
-		ID:        uuid.New(),
+	now := time.Now()
+	newUser := &models.User{
+		Id:        uuid.NewString(),
 		Email:     input.Email,
 		Password:  string(passwordHash),
-		Role:      models.NullUserRole{UserRole: models.UserRoleUser, Valid: true},
+		Role:      models.UserRoleUser,
 		CreatedAt: now,
 		UpdatedAt: now,
 	}
 
 	if err := s.DB.CreateUser(ctx, newUser); err != nil {
-		var pgErr *pgconn.PgError
-		if errors.As(err, &pgErr) {
-			if pgErr.Code == pgerrcode.UniqueViolation {
-				return nil, errors.New("user already exists")
-			}
-		}
-
 		return nil, fmt.Errorf("failed to create user: %w", err)
 	}
 
@@ -72,7 +59,7 @@ func (s Service) GetAllUsers(
 		return nil, err
 	}
 
-	users, err := s.DB.GetAllUsers(ctx, models.GetAllUsersParams{
+	users, err := s.DB.ListAllUsers(ctx, &persistence.ListAllUsersArgs{
 		Limit:  parsedLimit,
 		Offset: parsedOffset,
 	})
@@ -86,8 +73,13 @@ func (s Service) GetAllUsers(
 		totalCount = users[0].TotalCount
 	}
 
+	userModels := make([]*models.User, len(users))
+	for i := range len(users) {
+		userModels[i] = &users[i].User
+	}
+
 	return &gmodel.UsersResponse{
-		Users:      mapUserRowsToResponse(users),
+		Users:      mapUserRowsToResponse(userModels),
 		TotalCount: totalCount,
 	}, nil
 }
@@ -98,16 +90,17 @@ func (s Service) SetUserDeletedStatus(
 	deleted bool,
 ) (*gmodel.MessageResponse, error) {
 	//nolint: exhaustruct
-	deletedAt := pgtype.Timestamp{Time: time.Now(), Valid: true}
+	deletedAt := sql.NullTime{Time: time.Now(), Valid: true}
 	if !deleted {
 		deletedAt.Valid = false
 	}
 
-	err := s.DB.SetUserDeletedStatus(ctx, models.SetUserDeletedStatusParams{
-		ID:        userID,
+	args := &persistence.SetUserDeleteStatusArgs{
+		UserId:    userID.String(),
 		DeletedAt: deletedAt,
-	})
+	}
 
+	err := s.DB.SetUserDeleteStatus(ctx, args)
 	if err != nil {
 		return nil, fmt.Errorf("failed to set user deleted status: %w", err)
 	}

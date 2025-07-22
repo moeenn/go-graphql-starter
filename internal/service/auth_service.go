@@ -2,7 +2,7 @@ package service
 
 import (
 	"api/graph/gmodel"
-	"api/helpers/jwt"
+	"api/internal/helpers/jwt"
 	"context"
 	"errors"
 	"fmt"
@@ -11,7 +11,7 @@ import (
 )
 
 func (s Service) Login(ctx context.Context, input gmodel.LoginInput) (*gmodel.LoginResponse, error) {
-	user, err := s.DB.GetUserByEmail(ctx, input.Email)
+	user, err := s.DB.FindUserByEmail(ctx, input.Email)
 	if err != nil {
 		return nil, errors.New("invalid email or password")
 	}
@@ -21,9 +21,9 @@ func (s Service) Login(ctx context.Context, input gmodel.LoginInput) (*gmodel.Lo
 	}
 
 	token, expiry, err := jwt.NewExpiringToken(&jwt.ExpiringTokenArgs{
-		UserId:        user.ID.String(),
+		UserId:        user.Id,
 		Email:         user.Email,
-		Role:          string(user.Role.UserRole),
+		Role:          string(user.Role),
 		JwtSecret:     s.Config.Auth.JwtSecret,
 		ExpiryMinutes: s.Config.Auth.JwtExpiryMinutes,
 	})
@@ -33,7 +33,7 @@ func (s Service) Login(ctx context.Context, input gmodel.LoginInput) (*gmodel.Lo
 	}
 
 	res := &gmodel.LoginResponse{
-		User: mapUserToResponse(&user),
+		User: mapUserToResponse(user),
 		Token: &gmodel.UserToken{
 			AccessToken: token,
 			Expiry:      expiry,

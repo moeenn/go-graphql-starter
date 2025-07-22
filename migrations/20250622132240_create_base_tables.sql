@@ -1,5 +1,5 @@
 -- +goose Up
-create type user_role as enum('Admin', 'User');
+create type user_role as enum('ADMIN', 'USER');
 
 create table users (
     id uuid unique not null

@@ -3,8 +3,7 @@
 A starter-kit go Golang projects using GraphQL APIs and PostgreSQL as database. Following tools and packages are used in this starter-kit:
 
 - [gqlgen](https://gqlgen.com): GraphQL server implementation (utilizing code-generation)
-- [sqlc](https://sqlc.dev): Library for accessing database (utilizing code-generation)
-- [taskfile](https://taskfile.dev): CLI tool for running project scripts 
+- [sqlx](https://jmoiron.github.io/sqlx): Library for accessing database
 
 
 ### Setup
