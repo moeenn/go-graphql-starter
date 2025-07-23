@@ -19,14 +19,14 @@ input CreateAccountInput {
 
 type UsersResponse {
   users: [User!]!
-  totalCount: Int! 
+  totalCount: Int!
 }
 
 extend type Query {
-  users(limit: Int!, offset: Int!): UsersResponse! @hasRole(role: Admin)
+  users(limit: Int!, offset: Int!): UsersResponse! @hasRole(role: ADMIN)
 }
 
 extend type Mutation {
   createAccount(input: CreateAccountInput!): MessageResponse!
-  setUserDeletedStatus(userId: UUID!, deleted: Boolean!): MessageResponse! @hasRole(role: Admin)
+  setUserDeletedStatus(userId: UUID!, deleted: Boolean!): MessageResponse! @hasRole(role: ADMIN)
 }

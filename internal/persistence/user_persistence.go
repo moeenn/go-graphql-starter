@@ -5,6 +5,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"time"
 
 	"github.com/lib/pq"
 )
@@ -20,7 +21,7 @@ type ListAllUsersArgs struct {
 }
 
 const listAllUsersQuery = `
-	select *, count(*) over() as total_count from users
+	select *, count(*) over() as total_count from "user"
 	limit $1
 	offset $2;
 `
@@ -52,12 +53,13 @@ func (p Persistence) FindUserByEmail(ctx context.Context, email string) (*models
 }
 
 const createUserQuery string = `
-	insert into users (id, email, role, password)
-	values ($1, $2, $3, $4, $5, $6);
+	insert into "user" (id, email, role, password, created_at, updated_at)
+	values ($1, $2, $3, $4, $5, $5);
 `
 
 func (p Persistence) CreateUser(ctx context.Context, user *models.User) error {
-	_, err := p.db.ExecContext(ctx, createUserQuery, user.Id, user.Email, user.Role, user.Password)
+	now := time.Now()
+	_, err := p.db.ExecContext(ctx, createUserQuery, user.Id, user.Email, user.Role, user.Password, now)
 	if err != nil {
 		e := err.(*pq.Error)
 		p.logger.Error("failed to create user", "error", err.Error())
@@ -80,7 +82,7 @@ type SetUserDeleteStatusArgs struct {
 }
 
 const setUserDeleteStatusQuery = `
-	update users
+	update "user"
 	set deleted_at = $2
 	where id = $1;
 `

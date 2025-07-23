@@ -3,8 +3,8 @@ scalar UUID
 directive @hasRole(role: Role!) on FIELD_DEFINITION
 
 enum Role {
-  Admin
-  User
+  ADMIN
+  USER
 }
 
 type MessageResponse {

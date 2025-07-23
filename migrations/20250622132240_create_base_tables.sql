@@ -1,11 +1,11 @@
 -- +goose Up
 create type user_role as enum('ADMIN', 'USER');
 
-create table users (
+create table "user" (
     id uuid unique not null
     , email varchar (100) not null
     , password varchar (255) not null
-    , role user_role default 'User'::user_role
+    , role user_role default 'USER'::user_role
     , created_at timestamp not null default now()
     , updated_at timestamp not null default now()
     , deleted_at timestamp
@@ -15,5 +15,5 @@ create table users (
 
 
 -- +goose Down
-drop table users;
+drop table "user";
 drop type user_role;
