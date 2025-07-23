@@ -37,6 +37,7 @@ func (s Service) CreateAccount(
 		Role:      models.UserRoleUser,
 		CreatedAt: now,
 		UpdatedAt: now,
+		DeletedAt: sql.NullTime{Valid: false, Time: time.Now()},
 	}
 
 	if err := s.DB.CreateUser(ctx, newUser); err != nil {

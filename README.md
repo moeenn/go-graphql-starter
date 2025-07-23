@@ -16,10 +16,10 @@ $ bash ./scripts/tools.sh
 $ cp .env.example .env
 
 # 03 - generate code.
-$ task generate
+$ make gen_graphql
 
 # 04 - generate the JWT secret token.
-$ task gen:token
+$ make gen_token
 ```
 
 **Note**: Save the generated token in `.env` file against the key `JWT_SECRET`.
@@ -29,8 +29,8 @@ $ task gen:token
 
 ```bash
 # run in development mode.
-$ task build:run
+$ make run
 
 # generate production build.
-$ task build
+$ make build
 ```

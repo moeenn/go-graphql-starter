@@ -61,7 +61,10 @@ func NewGraphqlGlobalMiddleware(args *GlobalMiddlewareArgs) (http.Handler, error
 
 		// log incoming request information.
 		for _, op := range operations {
-			args.Logger.Info("request operation", "type", op.Type, "name", op.Name)
+			args.Logger.Info("request operation",
+				"type", op.Type,
+				"name", op.Name,
+			)
 		}
 
 		allOpsWhitelisted := allOperationsWhitelisted(operations, args.WhiteListedOperations)

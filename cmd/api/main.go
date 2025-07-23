@@ -1,10 +1,10 @@
 package main
 
 import (
-	"api/config"
 	"api/graph"
 	"api/graph/directives"
 	"api/graph/resolvers"
+	"api/internal/config"
 	"api/internal/middleware"
 	"api/internal/persistence"
 	"api/internal/service"
@@ -35,7 +35,13 @@ func run(ctx context.Context) error {
 	if err != nil {
 		return fmt.Errorf("failed to open database connection: %w", err)
 	}
-	defer db.Close()
+	defer func() {
+		if err := db.Close(); err != nil {
+			logger.Error("failed to close db connection",
+				"error", err.Error(),
+			)
+		}
+	}()
 
 	if err := db.PingContext(ctx); err != nil {
 		return fmt.Errorf("failed to ping database: %w", err)

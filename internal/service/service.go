@@ -1,7 +1,7 @@
 package service
 
 import (
-	"api/config"
+	"api/internal/config"
 	"api/internal/persistence"
 
 	"fmt"
@@ -15,7 +15,6 @@ type Service struct {
 	Config *config.Config
 }
 
-// TODO: check if required.
 func safeInt64ToInt32(val int64) (int32, error) {
 	if val > math.MaxInt32 || val < math.MinInt32 {
 		return 0, fmt.Errorf("value %d out of int32 range %d", val, math.MaxInt32)

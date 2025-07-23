@@ -35,7 +35,7 @@ func validateAndParseJwtClaims(jwtSecret []byte, bearerToken string) (*JwtClaims
 
 	// Check token expiration
 	exp, err := claims.GetExpirationTime()
-	if err != nil || exp.Time.Before(time.Now()) {
+	if err != nil || exp.Before(time.Now()) {
 		return nil, errors.New("expired jwt")
 	}
 

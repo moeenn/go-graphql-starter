@@ -115,7 +115,9 @@ func newAuthConfig(logger *slog.Logger, exposeGraphiql bool) (*AuthConfig, error
 		if err != nil {
 			logger.Warn(
 				"env variable JWT_EXPIRY_MINUTES does not contain a valid unsigned number, using default value",
-				"value", expiryMinutesString, "default", defaultJwtExpiryMinutes)
+				"value", expiryMinutesString,
+				"default", defaultJwtExpiryMinutes,
+			)
 
 			expiryMinutes = defaultJwtExpiryMinutes
 		} else {
